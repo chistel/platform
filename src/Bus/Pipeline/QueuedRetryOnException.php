@@ -13,6 +13,8 @@ namespace Platform\Bus\Pipeline;
 
 use Closure;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Platform\Bus\Traits\QueuedOrSync;
+use Platform\Bus\Traits\RetryOnException;
 use Psr\Log\LoggerInterface as Log;
 
 class QueuedRetryOnException

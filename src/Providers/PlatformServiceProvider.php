@@ -11,19 +11,19 @@
 
 namespace Platform\Providers;
 
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\AggregateServiceProvider;
+use Illuminate\Support\Collection;
 use Platform\Menu\Manager as MenuManager;
-use ProtoneMedia\LaravelFFMpeg\Support\ServiceProvider;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
 class PlatformServiceProvider extends AggregateServiceProvider
 {
     protected $providers = [
-        ServiceProvider::class,
         BusServiceProvider::class,
+        QueryServiceProvider::class,
         MixinServiceProvider::class,
         MediaLibraryServiceProvider::class,
-        //LaravelFFMpegServiceProvider::class,
         AfricasTalkingServiceProvider::class,
         MenuServiceProvider::class
     ];
@@ -35,6 +35,8 @@ class PlatformServiceProvider extends AggregateServiceProvider
         $this->registerMenu();
 
         $this->mergeConfigFrom(__DIR__ . '/../../config/platform.php', 'platform');
+
+        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'platform');
     }
 
     /**
@@ -42,17 +44,15 @@ class PlatformServiceProvider extends AggregateServiceProvider
      */
     public function boot()
     {
-        $this->publishMigrations();
+       // $this->publishMigrations();
 
         $this->publishes([
             __DIR__ . '/../../config/platform.php' => $this->configPath('platform.php'),
-        ], 'config');
+        ], 'platform-config');
 
         $this->publishes([
             __DIR__ . '/../../resources/views' => base_path('resources/views/vendor/platform'),
-        ]);
-
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'platform');
+        ], 'platform-view');
     }
 
     private function registerMenu()
@@ -72,12 +72,41 @@ class PlatformServiceProvider extends AggregateServiceProvider
         return $this->app->make('path.config') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 
-    private function publishMigrations()
+    /**
+     * @throws BindingResolutionException
+     */
+  /*  private function publishMigrations()
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__ . '/../../database/migrations/' => database_path('migrations'),
-            ], 'migrations');
+                __DIR__.'/../../database/migrations/create_banks_table.php.stub' => $this->getMigrationFileName('create_banks_table.php'),
+                __DIR__.'/../../database/migrations/create_cities_table.php.stub' => $this->getMigrationFileName('create_cities_table.php'),
+                __DIR__.'/../../database/migrations/create_connected_accounts_table.php.stub' => $this->getMigrationFileName('create_connected_accounts_table.php'),
+                __DIR__.'/../../database/migrations/create_currencies_table.php.stub' => $this->getMigrationFileName('create_currencies_table.php'),
+                __DIR__.'/../../database/migrations/create_currency_exchange_rates_table.php.stub' => $this->getMigrationFileName('create_currency_exchange_rates_table.php'),
+                __DIR__.'/../../database/migrations/create_levels_table.php.stub' => $this->getMigrationFileName('create_levels_table.php.stub'),
+            ], 'platform-migration');
         }
+    }*/
+
+    /**
+     * Returns existing migration file if found, else uses the current timestamp.
+     *
+     * @param $migrationFileName
+     * @return string
+     * @throws BindingResolutionException
+     */
+    protected function getMigrationFileName($migrationFileName): string
+    {
+        $timestamp = date('Y_m_d_His');
+
+        $filesystem = $this->app->make(Filesystem::class);
+
+        return Collection::make($this->app->databasePath().DIRECTORY_SEPARATOR.'migrations'.DIRECTORY_SEPARATOR)
+            ->flatMap(function ($path) use ($filesystem, $migrationFileName) {
+                return $filesystem->glob($path.'*_'.$migrationFileName);
+            })
+            ->push($this->app->databasePath()."/migrations/{$timestamp}_{$migrationFileName}")
+            ->first();
     }
 }

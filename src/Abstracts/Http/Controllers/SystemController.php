@@ -11,9 +11,9 @@
 
 namespace Platform\Abstracts\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Platform\Traits\Common\Relationships;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\Request;
+use Platform\Support\Traits\Common\Relationships;
 
 /**
  * Class SystemController

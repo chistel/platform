@@ -13,8 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
-use Platform\Database\Eloquent\Models\Users\User;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -25,136 +23,9 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\HtmlString;
-use Platform\Services\Core;
 use Platform\Services\Response\Builder;
 use Platform\Support\Markdown\MarkdownCache;
-use WF\Onboard\OnboardFacade;
 
-/**
- * @param $user
- */
-function userToTutorOnboarding($user, $becomeATutor = 'no')
-{
-    OnboardFacade::addStep('Phone Number', User::class)
-        ->link(route('portal.account.manage.basic'))
-        ->cta('Add Phone number')
-        ->completeIf(function ($user) {
-            return !is_null($user->phone);
-        });
-    OnboardFacade::addStep('About Yourself', User::class)
-        ->link(route('portal.account.manage.basic'))
-        ->cta('Describe yourself')
-        ->completeIf(function ($user) {
-            return !is_null($user->getMeta('bio'));
-        });
-    OnboardFacade::addStep('Home Address', User::class)
-        ->link(route('portal.account.manage.address'))
-        ->cta('Add home address')
-        ->completeIf(function ($user) {
-            return !is_null($user->home_address);
-        });
-    OnboardFacade::addStep('Hostel Address', User::class)
-        ->link(route('portal.account.manage.address'))
-        ->cta('Add hostel address')
-        ->completeIf(function ($user) {
-            return !is_null($user->hostel_address);
-        });
-
-    OnboardFacade::addStep('Next of kin', User::class)
-        ->link(route('portal.account.manage.nextofkin'))
-        ->cta('Add next of kin')
-        ->completeIf(function ($user) {
-            $nextOfKin = $user->getMeta('next_of_kin');
-            return ((isset($nextOfKin['full_name']) && !is_null($nextOfKin['full_name']))
-                && (isset($nextOfKin['relationship']) && !is_null($nextOfKin['relationship']))
-                && (isset($nextOfKin['phone_number']) && !is_null($nextOfKin['phone_number']))
-            );
-        });
-    OnboardFacade::addStep('Add school', User::class)
-        ->link(route('portal.account.school.list'))
-        ->cta('Add school')
-        ->completeIf(function ($user) {
-            return ($user->user_schools->count() > 0);
-        });
-
-    OnboardFacade::addStep('Take test', User::class)
-        ->link(route('portal.quiz.index'))
-        ->cta('Take test')
-        ->completeIf(function ($user) {
-            return ($user->taken_quizzes()->where(['is_closed' => true])->latest()->count() > 0);
-        });
-}
-
-/**
- * Highlighting matching string
- *
- * @param string $text
- * @param string $words
- * @param null $class
- * @return string
- */
-function highlight($text = '', $words = '', $class = null): string
-{
-    $highlighted = preg_filter('/' . preg_quote($words, '/') . '/i', '<b><span class="' . $class . '">$0</span></b>', $text);
-    if (!empty($highlighted)) {
-        $text = $highlighted;
-    }
-    return $text;
-}
-
-function chmod_R($path, $filemode)
-{
-    if (!is_dir($path)) {
-        return chmod($path, $filemode);
-    }
-    $dh = opendir($path);
-    while ($file = readdir($dh)) {
-        if ($file != '.' && $file != '..') {
-            $fullpath = $path . '/' . $file;
-            if (!is_dir($fullpath)) {
-                if (!chmod($fullpath, $filemode)) {
-                    return false;
-                }
-            } else {
-                if (!chmod_R($fullpath, $filemode)) {
-                    return false;
-                }
-            }
-        }
-    }
-
-    closedir($dh);
-
-    if (chmod($path, $filemode)) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-function randString($length)
-{
-    $characters = '06EFGHI9KL' . time() . 'MNOPJRSUVW01YZ923234' . time() . 'ABCD5678QXT';
-    $charactersLength = strlen($characters);
-    $randomString = '';
-    for ($i = 0; $i < $length; $i++) {
-        $randomString .= $characters[rand(0, $charactersLength - 1)];
-    }
-    return $randomString;
-}
-
-function scheduleDays()
-{
-    return [
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-        'Sunday'
-    ];
-}
 
 if (!function_exists('getPercentOfNumber')) {
     /**
@@ -186,115 +57,12 @@ if (!function_exists('uses_trait')) {
     }
 }
 
-if (!function_exists('percentToNumber')) {
-
-    function percentToNumber(int $number, int $percent)
-    {
-
-    }
-
-}
-
-if (!function_exists('timeToFloat')) {
-    /**
-     * @param $val
-     * @return float|int|mixed|string
-     */
-    function timeToFloat($val)
-    {
-        if (empty($val)) {
-            return 0;
-        }
-        $hms = explode(':', $val);
-        return ($hms[0] + ($hms[1] / 60) + (isset($hms[2]) ? ($hms[2] / 3600) : 0));
-
-        //return $hms[0] + floor(($hms[1]/60)*100) / 100;
-    }
-}
-/**
- * @param $in
- * @return string
- */
-if (!function_exists('floatToTime')) {
-    /**
-     * @param $in
-     * @return string
-     */
-    function floatToTime($in): string
-    {
-        $h = intval($in);
-        $m = round((((($in - $h) / 100.0) * 60.0) * 100), 0);
-        if ($m == 60) {
-            $h++;
-            $m = 0;
-        }
-        return sprintf("%02d:%02d", $h, $m);
-    }
-}
-if (!function_exists('sumTime')) {
-
-    /**
-     * @param $times
-     * @return string
-     */
-    function sumTime($times): string
-    {
-        $all_seconds = 0;
-        // loop through all the times
-        foreach ($times as $time) {
-            $exploded = explode(':', $time);
-
-            $all_seconds += ($exploded[0] * 3600);
-            $all_seconds += ($exploded[1] * 60);
-            $all_seconds += (isset($exploded[2]) ? $exploded[2] : 0);
-
-        }
-        $total_minutes = floor($all_seconds / 60);
-        $seconds = $all_seconds % 60;
-        $hours = floor($total_minutes / 60);
-        $minutes = $total_minutes % 60;
-
-        // returns the time already formatted
-        return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
-    }
-}
-function timStringToSeconds($time)
-{
-    $parsed = date_parse($time);
-    return $parsed['hour'] * 3600 + $parsed['minute'] * 60 + $parsed['second'];
-}
-
-function secondsToTime($time)
-{
-
-    $days = floor($time / (60 * 60 * 24));
-    $time -= $days * (60 * 60 * 24);
-
-    $hours = floor($time / (60 * 60));
-    $time -= $hours * (60 * 60);
-
-    $minutes = floor($time / 60);
-    $time -= $minutes * 60;
-
-    $seconds = floor($time);
-    $time -= $seconds;
-    $return = '';
-    if ($days > 0) {
-        $return .= $days . 'd ';
-    }
-    if ($hours > 0) {
-        $return .= $hours . 'h ';
-    }
-    if ($minutes > 0) {
-        $return .= $minutes . 'm ';
-    }
-    if ($seconds > 0) {
-        $return .= $seconds . 's ';
-    }
-    return $return; // 1d 6h 50m 31s
-}
-
 if (!function_exists('isInstanceOf')) {
+    /**
+     * @param $object
+     * @param array $classnames
+     * @return bool
+     */
     function isInstanceOf($object, array $classnames)
     {
         foreach ($classnames as $classname) {
@@ -334,58 +102,52 @@ function getTagsPattern(array $tags = []): array
     return $pattern;
 }
 
-/**
- * @param $vars
- * @return array
- */
-function applyQuote($vars): array
-{
-    $new_vars = [];
-
-    foreach ($vars as $var) {
-        $new_vars[] = preg_quote($var);
-    }
-
-    return $new_vars;
-}
-
-
-/**
- * @param $content
- * @return string|string[]
- */
-function revertQuote($content): array|string
-{
-    return str_replace('\\', '', $content);
-}
-
-/**
- * The attributes that are mass assignable.
- *
- * @param $items
- * @param int $perPage
- * @param null $page
- * @param array $options
- * @return LengthAwarePaginator
- */
-function paginate($items, $perPage = 5, $page = null, $options = [])
-{
-    $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
-
-    $items = $items instanceof Collection ? $items : Collection::make($items);
-
-    return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
-
-}
-
-if (!function_exists('core')) {
+if (!function_exists('applyQuote')) {
     /**
-     * @return Core|mixed
-     * @throws BindingResolutionException
+     * @param $vars
+     * @return array
      */
-    function core()
+    function applyQuote($vars): array
     {
-        return app()->make(Core::class);
+        $new_vars = [];
+
+        foreach ($vars as $var) {
+            $new_vars[] = preg_quote($var);
+        }
+
+        return $new_vars;
+    }
+}
+
+if (!function_exists('revertQuote')) {
+    /**
+     * @param $content
+     * @return string|string[]
+     */
+    function revertQuote($content): array|string
+    {
+        return str_replace('\\', '', $content);
+    }
+}
+
+if (!function_exists('paginatr')) {
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @param $items
+     * @param int $perPage
+     * @param null $page
+     * @param array $options
+     * @return LengthAwarePaginator
+     */
+    function paginate($items, $perPage = 5, $page = null, $options = [])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
+
     }
 }
 
@@ -586,16 +348,16 @@ if (!function_exists('array_trim_recursive')) {
      * Recursively trim elements of the given array.
      *
      * @param $values
-     * @param string $charlist
+     * @param string $charList
      * @return array|mixed|string
      */
-    function array_trim_recursive($values, string $charlist = " \t\n\r\0\x0B"): mixed
+    function array_trim_recursive($values, string $charList = " \t\n\r\0\x0B"): mixed
     {
         if (is_array($values)) {
             return array_map('array_trim_recursive', $values);
         }
 
-        return is_string($values) ? trim($values, $charlist) : $values;
+        return is_string($values) ? trim($values, $charList) : $values;
     }
 }
 
@@ -777,7 +539,7 @@ if (!function_exists('query_parameters')) {
 }
 
 
-if (! function_exists('uses_trait')) {
+if (!function_exists('uses_trait')) {
     /**
      * Returns true if the class uses the trait
      *
@@ -793,7 +555,7 @@ if (! function_exists('uses_trait')) {
     }
 }
 
-if (! function_exists('markdown')) {
+if (!function_exists('markdown')) {
     /**
      * Converts a bunch of text in markdown, to its HTML equivalent.
      *
@@ -806,7 +568,7 @@ if (! function_exists('markdown')) {
     }
 }
 
-if (! function_exists('markdown_inline')) {
+if (!function_exists('markdown_inline')) {
     /**
      * Converts text in markdown to its HTML inline equivalent. (No <p> tags)
      *
@@ -819,7 +581,7 @@ if (! function_exists('markdown_inline')) {
     }
 }
 
-if (! function_exists('markdown_pdf')) {
+if (!function_exists('markdown_pdf')) {
     /**
      * Converts text in markdown to its HTML inline equivalent. (Simple output, no embedded videos)
      *

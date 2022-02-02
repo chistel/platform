@@ -10,4 +10,3 @@
  */
 
 include __DIR__ . '/core.php';
-include __DIR__ . '/hashid.php';

@@ -13,11 +13,11 @@ namespace Platform\Kessel;
 
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Platform\Authorisation\Signatory;
-use Platform\Exceptions\Kessel\ResourceNotFound;
-use Platform\Exceptions\Kessel\ValidationFailed;
-use Illuminate\Support\Facades\Http;
+use Platform\Kessel\Exceptions\ResourceNotFound;
+use Platform\Kessel\Exceptions\ValidationFailed;
 
 class Hyperdrive
 {

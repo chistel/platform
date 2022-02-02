@@ -11,13 +11,13 @@
 
 namespace Platform\Abstracts;
 
-use Plank\Metable\Metable;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Eloquent\Model;
-use Platform\Database\Eloquent\Models\Common\Token;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Platform\Traits\Common\CamelCasing;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Facades\Schema;
+use Plank\Metable\Metable;
+use Platform\Database\Eloquent\Models\Common\Token;
+use Platform\Support\Traits\Common\CamelCasing;
 
 abstract class BaseModel extends Model
 {

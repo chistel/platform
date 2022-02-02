@@ -12,7 +12,8 @@
 namespace Platform\Bus\Pipeline;
 
 use Closure;
-use Platform\Events\EventDispatcher;
+use Platform\Bus\Traits\QueuedOrSync;
+use Platform\Database\Traits\EventDispatcher;
 
 class QueuedJobStatus
 {

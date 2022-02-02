@@ -14,6 +14,7 @@ namespace Platform\Bus\Pipeline;
 use Closure;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Platform\Bus\Contracts\DatabaseTransactions;
 
 class CommandTransaction
 {

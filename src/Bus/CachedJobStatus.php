@@ -11,8 +11,8 @@
 
 namespace Platform\Bus;
 
-use Platform\Bus\Status\Messenger;
 use Illuminate\Support\Facades\Cache;
+use Platform\Bus\Contracts\Messenger;
 
 class CachedJobStatus implements Messenger
 {

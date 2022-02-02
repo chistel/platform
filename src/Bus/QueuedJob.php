@@ -11,15 +11,19 @@
 
 namespace Platform\Bus;
 
-use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Platform\Bus\Pipeline\Applicationable;
+use Illuminate\Support\Str;
+use Platform\Bus\Contracts\Applicationable;
+use Platform\Bus\Traits\SerialisesDeletedModels;
+use Platform\Bus\Traits\SerializesModels;
 
 abstract class QueuedJob implements ShouldQueue, Applicationable
 {
-    use Queueable, SerializesModels, SerialisesDeletedModels {
+    use Queueable;
+    use SerializesModels;
+    use SerialisesDeletedModels {
         SerialisesDeletedModels::getRestoredPropertyValue insteadof SerializesModels;
     }
 

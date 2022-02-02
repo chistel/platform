@@ -14,7 +14,8 @@ namespace Platform\Bus\Pipeline;
 use Closure;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Log;
-use Platform\Bus\Debounce;
+use Platform\Bus\Traits\Debounce;
+use Platform\Bus\Traits\QueuedOrSync;
 
 class QueuedDebounce
 {
@@ -31,7 +32,8 @@ class QueuedDebounce
         $overdue = $command->debounceOverdue();
 
         if ($outdated && ! $overdue) {
-            return Log::info('Debounce skipping outdated: '.get_class($command));
+            Log::info('Debounce skipping outdated: '.get_class($command));
+            return;
         }
 
         if ($command->debounceLocked()) {

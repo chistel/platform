@@ -11,13 +11,13 @@
 
 namespace Platform\Abstracts;
 
-use Platform\Abstracts\Http\FormRequest;
-use Platform\Traits\Common\Jobs;
-use Platform\Traits\Common\Relationships;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Platform\Abstracts\Http\FormRequest;
+use Platform\Support\Traits\Common\Relationships;
+use Platform\Traits\Common\Jobs;
 
 abstract class Job implements ShouldQueue
 {
