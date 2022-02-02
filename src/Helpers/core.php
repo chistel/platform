@@ -41,22 +41,6 @@ if (!function_exists('getPercentOfNumber')) {
     }
 }
 
-if (!function_exists('uses_trait')) {
-    /**
-     * Returns true if the class uses the trait
-     *
-     * @param object|string $class
-     * @param string $trait
-     * @return bool
-     */
-    function uses_trait(object|string $class, string $trait): bool
-    {
-        $class = is_object($class) ? get_class($class) : $class;
-
-        return in_array($trait, class_uses_recursive($class));
-    }
-}
-
 if (!function_exists('isInstanceOf')) {
     /**
      * @param $object
@@ -73,64 +57,8 @@ if (!function_exists('isInstanceOf')) {
         return false;
     }
 }
-/**
- * @param $content
- * @param array $patterns
- * @param array $replacements
- * @return string|string[]
- */
-function replaceTags($content, array $patterns = [], array $replacements = []): array|string
-{
-    $pattern = getTagsPattern($patterns);
-    $replacement = applyQuote($replacements);
 
-    return revertQuote(preg_replace($pattern, $replacement, $content));
-}
-
-/**
- * @param array $tags
- * @return array
- */
-function getTagsPattern(array $tags = []): array
-{
-    $pattern = [];
-
-    foreach ($tags as $tag) {
-        $pattern[] = "/" . $tag . "/";
-    }
-
-    return $pattern;
-}
-
-if (!function_exists('applyQuote')) {
-    /**
-     * @param $vars
-     * @return array
-     */
-    function applyQuote($vars): array
-    {
-        $new_vars = [];
-
-        foreach ($vars as $var) {
-            $new_vars[] = preg_quote($var);
-        }
-
-        return $new_vars;
-    }
-}
-
-if (!function_exists('revertQuote')) {
-    /**
-     * @param $content
-     * @return string|string[]
-     */
-    function revertQuote($content): array|string
-    {
-        return str_replace('\\', '', $content);
-    }
-}
-
-if (!function_exists('paginatr')) {
+if (!function_exists('paginate')) {
     /**
      * The attributes that are mass assignable.
      *
@@ -253,18 +181,6 @@ function isWithInTime($start, $end, $currentTime): bool
     return false;
 }
 
-if (!function_exists('domain')) {
-    /**
-     * Return domain host.
-     *
-     * @return string
-     */
-    function domain(): string
-    {
-        return parse_url(config('app.url'))['host'];
-    }
-}
-
 if (!function_exists('intend')) {
     /**
      * Return redirect response.
@@ -288,36 +204,6 @@ if (!function_exists('intend')) {
         }
 
         return $redirect;
-    }
-}
-
-if (!function_exists('mimetypes')) {
-    /**
-     * Get valid mime types.
-     *
-     * @see https://github.com/symfony/http-foundation/blob/3.0/File/MimeType/MimeTypeExtensionGuesser.php
-     * @see http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
-     *
-     * @return array
-     */
-    function mimetypes(): array
-    {
-        return json_decode(file_get_contents(__DIR__ . '/../../resources/data/mimetypes.json'), true);
-    }
-}
-
-if (!function_exists('timezones')) {
-    /**
-     * Get valid timezones.
-     * This list is based upon the timezone database version 2017.2.
-     *
-     * @see http://php.net/manual/en/timezones.php
-     *
-     * @return array
-     */
-    function timezones(): array
-    {
-        return json_decode(file_get_contents(__DIR__ . '/../../resources/data/timezones.json'), true);
     }
 }
 
@@ -432,31 +318,6 @@ if (!function_exists('formatSize')) {
         $number = $size > 0 ? $size / (1024 ** $power) : 0;
 
         return number_format($number, $precision) . ' ' . $units[$power];
-    }
-}
-
-if (!function_exists('redirectTo')) {
-    /**
-     * @param Request $request
-     * @return string|null
-     */
-    function redirectTo(Request $request): ?string
-    {
-        $target = null;
-        $redirectTo = $request->query('redirect_to');
-        $httpReferer = $request->headers->get('referer');
-        if (str_contains($httpReferer, '?redirect_to=')) {
-            $params = explode('?', $httpReferer);
-            $target = urldecode(explode('=', $params[1])[1]);
-        } elseif (!is_null($redirectTo)) {
-            $refData = parse_url($redirectTo);
-            $siteDomain = parse_url(env('APP_URL'));
-            if (isset($refData['host']) && ($refData['host'] == $siteDomain['host'])) {
-                $target = urldecode($redirectTo);
-            }
-        }
-
-        return $target;
     }
 }
 
