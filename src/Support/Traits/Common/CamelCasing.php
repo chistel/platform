@@ -12,8 +12,6 @@
 namespace Platform\Support\Traits\Common;
 
 use Illuminate\Support\Str;
-use function Platform\Support\str_contains;
-
 trait CamelCasing
 {
     /**
