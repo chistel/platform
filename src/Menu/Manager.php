@@ -32,10 +32,10 @@ class Manager extends Collection
     /**
      * Return a specific menu.
      *
-     * @param string $menuName
-     * @return static
+     * @param $menuName
+     * @return mixed
      */
-    public function menu($menuName): static
+    public function menu($menuName)
     {
         return $this->filter(function ($menuItem) use ($menuName) {
             return $menuItem instanceof Menu && $menuItem->name == $menuName;

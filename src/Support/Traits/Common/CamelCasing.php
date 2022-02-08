@@ -12,6 +12,7 @@
 namespace Platform\Support\Traits\Common;
 
 use Illuminate\Support\Str;
+
 trait CamelCasing
 {
     /**
