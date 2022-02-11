@@ -58,6 +58,7 @@ class Item extends MenuItem implements Arrayable
             'name' => $this->name,
             'link' => $this->link,
             'icon' => $this->icon(),
+            'active' => $this->isActive(),
             'target' => $this->target,
         ];
     }

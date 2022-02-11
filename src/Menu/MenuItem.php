@@ -32,7 +32,7 @@ abstract class MenuItem
      *
      * @var Menu
      */
-    protected Menu $parent;
+    protected $parent;
 
     /**
      * Defines whether the menu item is renderable.

@@ -64,6 +64,7 @@ class Menu extends MenuItem implements Arrayable, Jsonable
             'name' => $this->name,
             'text' => $this->text,
             'icon' => $this->icon,
+            'active' => $this->isActive(),
             'children' => $this->children ?
                 array_map(function ($child) {
                     return $child->toArray();
