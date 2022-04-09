@@ -31,7 +31,7 @@ trait Uuid
     {
         parent::boot();
         static::creating(function (Model $model) {
-            if (Schema::hasColumn($model->getTable(), $this->uuidField) && empty($model->{$uuidField = $this->uuidField})) {
+            if (Schema::hasColumn($model->getTable(), $model->uuidField) && empty($model->{$uuidField = $model->uuidField})) {
                 $model->{$uuidField} = Str::uuid()->toString();
             }
         });
