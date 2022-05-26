@@ -11,8 +11,6 @@
 
 namespace Platform\Database\Traits;
 
-use function collect;
-
 /**
  * Trait EventGenerator
  *
@@ -54,9 +52,7 @@ trait Raiseable
      */
     private function discardExisting(string $class)
     {
-        $this->pendingEvents = collect($this->pendingEvents)->reject(function ($existing) use ($class) {
-            return $existing instanceof $class;
-        })->all();
+        $this->pendingEvents = collect($this->pendingEvents)->reject(fn($existing) => $existing instanceof $class)->all();
     }
 
     /**

@@ -23,7 +23,7 @@ trait EventDispatcher
      * @param array|object $events
      * @throws BindingResolutionException
      */
-    public function dispatch($events)
+    public function dispatch(array|object $events)
     {
         if (!is_array($events)) {
             $events = [$events];

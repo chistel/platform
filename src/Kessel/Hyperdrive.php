@@ -29,7 +29,7 @@ class Hyperdrive
     private Signatory $signatory;
 
     /** @var string */
-    private $endpoint;
+    private string $endpoint;
 
     public function __construct()
     {
@@ -42,8 +42,7 @@ class Hyperdrive
      * @param string $resource
      * @param array $parameters
      * @return array
-     * @throws ResourceNotFound
-     * @throws ValidationFailed|RequestException
+     * @throws RequestException
      */
     public function get(string $resource, array $parameters = []): array
     {
@@ -54,8 +53,7 @@ class Hyperdrive
      * @param string $resource
      * @param array $data
      * @return array
-     * @throws ResourceNotFound
-     * @throws ValidationFailed|RequestException
+     * @throws RequestException
      */
     public function create(string $resource, array $data = []): array
     {
@@ -67,9 +65,7 @@ class Hyperdrive
      *
      * @param string $resource
      * @param array $data
-     * @return void
-     * @throws ResourceNotFound
-     * @throws ValidationFailed|RequestException
+     * @throws RequestException
      */
     public function update(string $resource, array $data = [])
     {
@@ -80,21 +76,19 @@ class Hyperdrive
      * Delete specific resource
      *
      * @param string $resource
-     * @return void
-     * @throws ResourceNotFound
-     * @throws ValidationFailed
+     * @return Response
+     * @throws RequestException
      */
     public function delete(string $resource)
     {
-        $this->request('delete', $resource);
+        return $this->request('delete', $resource);
     }
 
     /**
      * Ping the requested endpoint.
      *
      * @return Response
-     * @throws ResourceNotFound
-     * @throws ValidationFailed
+     * @throws RequestException
      */
     public function ping(): Response
     {
@@ -106,8 +100,6 @@ class Hyperdrive
      * @param string $resource
      * @param array $data
      * @return Response
-     * @throws ResourceNotFound
-     * @throws ValidationFailed
      * @throws RequestException
      */
     private function request(string $action, string $resource, array $data = []): Response
@@ -128,7 +120,7 @@ class Hyperdrive
      */
     private function requestOptions(string $action, array $data): array
     {
-        $dataKey = ($action == 'get') ? 'query' : 'json';
+        $dataKey = ($action === 'get') ? 'query' : 'json';
 
         return array_filter([
             $dataKey => $data,

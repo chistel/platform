@@ -11,6 +11,7 @@
 
 namespace Platform\Database\Eloquent;
 
+use Exception;
 use Illuminate\Support\Arr;
 use Platform\Database\Events\ModelWasCopied;
 use Platform\Database\Events\ModelWasDeleted;
@@ -31,8 +32,8 @@ abstract class Model extends \Illuminate\Database\Eloquent\Model
      *
      * @var string
      */
-    protected $copiedEvent = ModelWasCopied::class;
-    protected $deletedEvent = ModelWasDeleted::class;
+    protected string $copiedEvent = ModelWasCopied::class;
+    protected string $deletedEvent = ModelWasDeleted::class;
 
     /**
      * Stores the changed attributes, retrieved from dirty.
@@ -93,8 +94,8 @@ abstract class Model extends \Illuminate\Database\Eloquent\Model
     /**
      * Copies the model into a new model, clearing the unique fields.
      *
-     * @param array $except
-     * @return \Illuminate\Database\Eloquent\Model
+     * @param array|null $except
+     * @return Model
      */
     public function copy(array $except = null)
     {
@@ -116,7 +117,7 @@ abstract class Model extends \Illuminate\Database\Eloquent\Model
     /**
      * Overload the delete method so that we can throw more specific event objects.
      *
-     * @throws \Exception
+     * @throws Exception
      * @return bool|null
      * @codeCoverageIgnore
      */
@@ -145,7 +146,7 @@ abstract class Model extends \Illuminate\Database\Eloquent\Model
                 return $attribute->__toString();
             }
             return $attribute;
-        }, self::camelAttributesToArray());
+        }, $this->camelAttributesToArray());
     }
 
     /**

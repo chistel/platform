@@ -5,8 +5,8 @@ use Illuminate\Contracts\Encryption\Encrypter as EncrypterContract;
 
 class Encrypter implements EncrypterContract
 {
-    const PREFIX_STANDARD = 's:';
-    const PREFIX_MAXIMUM = 'm:';
+    public const PREFIX_STANDARD = 's:';
+    public const PREFIX_MAXIMUM = 'm:';
 
     /** @var EncrypterContract */
     private $standard;

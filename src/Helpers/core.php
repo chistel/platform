@@ -175,10 +175,7 @@ if (!function_exists('extract_title')) {
  */
 function isWithInTime($start, $end, $currentTime): bool
 {
-    if (($currentTime >= $start) && ($currentTime <= $end)) {
-        return true;
-    }
-    return false;
+    return ($currentTime >= $start) && ($currentTime <= $end);
 }
 
 if (!function_exists('intend')) {

@@ -30,7 +30,7 @@ trait Uuid
     protected static function boot()
     {
         parent::boot();
-        static::creating(function (Model $model) {
+        static::creating(static function (Model $model) {
             if (Schema::hasColumn($model->getTable(), $model->uuidField) && empty($model->{$uuidField = $model->uuidField})) {
                 $model->{$uuidField} = Str::uuid()->toString();
             }
